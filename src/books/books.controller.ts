@@ -5,12 +5,9 @@ import {
   Get,
   Param,
   NotFoundException,
-  Patch,
-  Delete,
 } from '@nestjs/common';
-import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
+import { BooksService } from './books.service';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { BookDto } from './dto/book.dto';
 
@@ -29,23 +26,13 @@ export class BooksController {
     return this.bookService.getAll();
   }
 
-  @Get(':id')
-  async get(@Param('id') id: number) {
-    const user = await this.bookService.get(id);
-    if (!user) {
+  @Get('/:id')
+  async getById(@Param('id') id: number) {
+    const book = await this.bookService.getById(id);
+    if (!book) {
       throw new NotFoundException();
     }
 
-    return user;
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: number, @Body() dto: UpdateBookDto) {
-    return this.bookService.update(id, dto);
-  }
-
-  @Delete(':id')
-  delete(@Param('id') id: number) {
-    return this.bookService.delete(id);
+    return book;
   }
 }

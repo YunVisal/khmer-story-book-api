@@ -9,4 +9,13 @@ export class BookDto {
 
   @Expose()
   author: string;
+
+  @Expose()
+  description: string;
+
+  @Expose()
+  coverImageUrl: string;
+
+  @Expose()
+  language: string;
 }
