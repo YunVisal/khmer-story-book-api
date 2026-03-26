@@ -5,6 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BooksModule } from './books/books.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Book } from './books/books.entity';
+import { ChaptersModule } from './chapters/chapters.module';
+import { Chapter } from './chapters/chapters.entity';
 
 @Module({
   imports: [
@@ -19,11 +21,12 @@ import { Book } from './books/books.entity';
           type: 'sqlite',
           database: config.get<string>('DB_NAME'),
           synchronize: true,
-          entities: [Book],
+          entities: [Book, Chapter],
         };
       },
     }),
     BooksModule,
+    ChaptersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
