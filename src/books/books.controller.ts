@@ -5,11 +5,13 @@ import {
   Get,
   Param,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { BooksService } from './books.service';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { BookDto } from './dto/book.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('books')
 @Serialize(BookDto)
@@ -17,6 +19,7 @@ export class BooksController {
   constructor(private bookService: BooksService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   create(@Body() dto: CreateBookDto) {
     return this.bookService.create(dto);
   }

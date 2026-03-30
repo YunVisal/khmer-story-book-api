@@ -26,6 +26,13 @@ export class ChaptersService {
   }
 
   async getAll() {
-    return this.repo.findBy({ isDeleted: false });
+    return this.repo.find({
+      where: { isDeleted: false },
+      relations: { book: true },
+    });
+  }
+
+  async getById(id: number) {
+    return this.repo.findOneBy({ id });
   }
 }

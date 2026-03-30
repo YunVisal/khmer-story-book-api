@@ -1,26 +1,22 @@
-import { Book } from 'src/books/books.entity';
-import { Content } from 'src/contents/contents.entity';
+import { Chapter } from 'src/chapters/chapters.entity';
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
+  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class Chapter {
+export class Content {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  title: string;
-
-  @Column()
-  chapterNumber: number;
+  content: string;
 
   @Column()
   isDeleted: boolean;
@@ -37,11 +33,9 @@ export class Chapter {
   @UpdateDateColumn()
   modifiedDate: Date;
 
-  @ManyToOne(() => Book, (book) => book.chapters)
-  book: Book;
-
-  @OneToOne(() => Content, (content) => content.chapter)
-  content: Content;
+  @OneToOne(() => Chapter, (chapter) => chapter.content)
+  @JoinColumn()
+  chapter: Chapter;
 
   @BeforeInsert()
   beforeCreate() {
