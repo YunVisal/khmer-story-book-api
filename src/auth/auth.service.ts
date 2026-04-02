@@ -10,8 +10,15 @@ import { ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshToken } from './refresh-token.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
+import {
+  DEFAULT_TOKEN_EXPIRY_DURATION,
+  JWT_CLAIM_USER_ID,
+  REFRESH_TOKEN_EXPIRY_DURATION_CONFIG_KEY,
+  REFRESH_TOKEN_JWT_SECRET_CONFIG_KEY,
+  REFRESH_TOKEN_EXPIRY_DURATION_VALUE_CONFIG_KEY,
+} from 'src/app.config';
 
 @Injectable()
 export class AuthService {
@@ -52,31 +59,61 @@ export class AuthService {
       throw new BadRequestException('Email or Password is not correct');
     }
 
-    const payload = { sub: user.id, username: user.username };
-    const accessToken = await this.jwtService.signAsync(payload);
-    const refreshToken = await this.generateRefreshToken(user, payload);
-
-    return { accessToken, refreshToken };
+    return await this.generateToken(user);
   }
 
   async getUser(jwtPayload: any) {
-    const userId = jwtPayload['sub'];
+    const userId = jwtPayload[JWT_CLAIM_USER_ID];
     const user = await this.userService.getUserById(userId);
     return user;
   }
 
-  private async generateRefreshToken(user: User, payload: any) {
+  async refreshToken(
+    token: string,
+    jwtPayload: any,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const now = new Date();
+    const existingRefreshToken = await this.refreshTokenRepo.findOne({
+      where: { tokenHash: token, isDeleted: false, expiryDate: MoreThan(now) },
+    });
+    if (!existingRefreshToken) {
+      throw new BadRequestException('invalid refresh token');
+    }
+
+    existingRefreshToken.isDeleted = true;
+    existingRefreshToken.modifiedDate = new Date();
+    await this.refreshTokenRepo.save(existingRefreshToken);
+
+    const user = await this.getUser(jwtPayload);
+    if (!user) {
+      throw new BadRequestException('invalid refresh token');
+    }
+
+    return await this.generateToken(user);
+  }
+
+  private async generateToken(user: User) {
+    const payload = { sub: user.id, username: user.username };
+    const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.generateRefreshToken(user);
+    return { accessToken, refreshToken };
+  }
+
+  private async generateRefreshToken(user: User) {
     const refreshTokenSecret = this.configService.get<string>(
-      'REFRESH_TOKEN_JWT_SECRET',
+      REFRESH_TOKEN_JWT_SECRET_CONFIG_KEY,
     );
     const refreshTokenExpiry = (this.configService.get<string>(
-      'REFRESH_TOKEN_EXPIRY_DURATION',
-    ) ?? '60s') as StringValue;
+      REFRESH_TOKEN_EXPIRY_DURATION_CONFIG_KEY,
+    ) ?? DEFAULT_TOKEN_EXPIRY_DURATION) as StringValue;
     const refreshTokenExpiryValue =
       Number(
-        this.configService.get<string>('REFRESH_TOKEN_EXPIRY_DURATION_VALUE'),
+        this.configService.get<string>(
+          REFRESH_TOKEN_EXPIRY_DURATION_VALUE_CONFIG_KEY,
+        ),
       ) || 1;
 
+    const payload = { sub: user.id };
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: refreshTokenSecret,
       expiresIn: refreshTokenExpiry,

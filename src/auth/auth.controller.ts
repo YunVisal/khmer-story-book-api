@@ -6,6 +6,7 @@ import {
   UseGuards,
   Get,
   Res,
+  Req,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
@@ -14,6 +15,8 @@ import { AuthGuard } from './auth.guard';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from 'src/user/dto/user.dto';
 import express from 'express';
+import { RefreshTokenGuard } from './refresh-token.gurard';
+import { REFRESH_TOKEN_COOKIE_KEY } from 'src/app.config';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +34,9 @@ export class AuthController {
     @Res({ passthrough: true }) response: express.Response,
   ) {
     const resDto = await this.authService.login(dto);
-    response.cookie('refresh', resDto.refreshToken, { httpOnly: true });
+    response.cookie(REFRESH_TOKEN_COOKIE_KEY, resDto.refreshToken, {
+      httpOnly: true,
+    });
     return resDto;
   }
 
@@ -40,5 +45,21 @@ export class AuthController {
   @UseGuards(AuthGuard)
   async verify(@Request() req) {
     return this.authService.getUser(req.user);
+  }
+
+  @Get('refresh')
+  @UseGuards(RefreshTokenGuard)
+  async refresh(
+    @Req() request,
+    @Res({ passthrough: true }) response: express.Response,
+  ) {
+    const refreshToken = request.cookies[REFRESH_TOKEN_COOKIE_KEY] as string;
+    const user = request.user;
+
+    const resDto = await this.authService.refreshToken(refreshToken, user);
+    response.cookie(REFRESH_TOKEN_COOKIE_KEY, resDto.refreshToken, {
+      httpOnly: true,
+    });
+    return resDto;
   }
 }

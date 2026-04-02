@@ -27,7 +27,7 @@ export class RefreshToken {
   createdDate: Date;
 
   @UpdateDateColumn()
-  modifiedDate: Date;
+  modifiedDate: Date | undefined;
 
   @ManyToOne(() => User, (user) => user.refreshTokens)
   user: User;
@@ -35,5 +35,6 @@ export class RefreshToken {
   @BeforeInsert()
   beforeCreate() {
     this.isDeleted = false;
+    this.modifiedDate = new Date();
   }
 }

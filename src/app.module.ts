@@ -13,6 +13,14 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
 import { RefreshToken } from './auth/refresh-token.entity';
+import {
+  DB_HOST_CONFIG_KEY,
+  DB_NAME_CONFIG_KEY,
+  DB_PASSWORD_CONFIG_KEY,
+  DB_SYNCHRONIZE_CONFIG_KEY,
+  DB_USERNAME_CONFIG_KEY,
+  DB_TYPE,
+} from './app.config';
 
 @Module({
   imports: [
@@ -24,12 +32,12 @@ import { RefreshToken } from './auth/refresh-token.entity';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         return {
-          type: 'postgres',
-          host: config.get<string>('DB_HOST'),
-          username: config.get<string>('DB_USERNAME'),
-          password: config.get<string>('DB_PASSWORD'),
-          database: config.get<string>('DB_NAME'),
-          synchronize: config.get<boolean>('DB_SYNCHRONIZE'),
+          type: DB_TYPE,
+          host: config.get<string>(DB_HOST_CONFIG_KEY),
+          username: config.get<string>(DB_USERNAME_CONFIG_KEY),
+          password: config.get<string>(DB_PASSWORD_CONFIG_KEY),
+          database: config.get<string>(DB_NAME_CONFIG_KEY),
+          synchronize: config.get<boolean>(DB_SYNCHRONIZE_CONFIG_KEY),
           ssl: true,
           entities: [Book, Chapter, Content, User, RefreshToken],
         };
