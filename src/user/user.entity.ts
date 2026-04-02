@@ -1,7 +1,9 @@
+import { RefreshToken } from 'src/auth/refresh-token.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -37,4 +39,7 @@ export class User {
 
   @UpdateDateColumn()
   modifiedDate: Date;
+
+  @OneToMany(() => RefreshToken, (token) => token.user)
+  refreshTokens: RefreshToken[];
 }

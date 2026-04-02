@@ -12,6 +12,7 @@ import { Content } from './contents/contents.entity';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
+import { RefreshToken } from './auth/refresh-token.entity';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { User } from './user/user.entity';
           database: config.get<string>('DB_NAME'),
           synchronize: config.get<boolean>('DB_SYNCHRONIZE'),
           ssl: true,
-          entities: [Book, Chapter, Content, User],
+          entities: [Book, Chapter, Content, User, RefreshToken],
         };
       },
     }),
