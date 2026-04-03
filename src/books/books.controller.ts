@@ -11,7 +11,7 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { BooksService } from './books.service';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { BookDto } from './dto/book.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('books')
 @Serialize(BookDto)

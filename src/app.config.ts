@@ -5,7 +5,7 @@ export const DB_SYNCHRONIZE_CONFIG_KEY = 'DB_SYNCHRONIZE';
 export const DB_USERNAME_CONFIG_KEY = 'DB_USERNAME';
 export const DB_TYPE = 'postgres';
 export const BEARER = 'Bearer';
-export const REQUEST_USER_KEY = 'user';
+export const REQUEST_USER_ID_KEY = 'userId';
 export const DEFAULT_TOKEN_EXPIRY_DURATION = '60s';
 export const ACCESS_TOKEN_EXPIRY_DURATION_CONFIG_KEY =
   'ACCESS_TOKEN_EXPIRY_DURATION';
@@ -17,3 +17,4 @@ export const REFRESH_TOKEN_EXPIRY_DURATION_VALUE_CONFIG_KEY =
 export const REFRESH_TOKEN_JWT_SECRET_CONFIG_KEY = 'REFRESH_TOKEN_JWT_SECRET';
 export const REFRESH_TOKEN_COOKIE_KEY = 'refresh';
 export const JWT_CLAIM_USER_ID = 'sub';
+export const REQUEST_CURRENT_USER_KEY = 'currentUser';

@@ -4,10 +4,12 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserModule } from 'src/user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 import { StringValue } from 'ms';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RefreshToken } from './refresh-token.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
 
 @Module({
   imports: [
@@ -32,7 +34,15 @@ import { RefreshToken } from './refresh-token.entity';
     UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard, ConfigService],
+  providers: [
+    AuthService,
+    AuthGuard,
+    ConfigService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CurrentUserInterceptor,
+    },
+  ],
   exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}

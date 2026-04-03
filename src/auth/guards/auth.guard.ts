@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { BEARER, REQUEST_USER_KEY } from 'src/app.config';
+import { BEARER, JWT_CLAIM_USER_ID, REQUEST_USER_ID_KEY } from 'src/app.config';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      request[REQUEST_USER_KEY] = payload;
+      request[REQUEST_USER_ID_KEY] = payload[JWT_CLAIM_USER_ID] as string;
     } catch {
       throw new UnauthorizedException();
     }

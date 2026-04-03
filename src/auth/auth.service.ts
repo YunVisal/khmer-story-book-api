@@ -9,12 +9,11 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RefreshToken } from './refresh-token.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
 import { MoreThan, Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import {
   DEFAULT_TOKEN_EXPIRY_DURATION,
-  JWT_CLAIM_USER_ID,
   REFRESH_TOKEN_EXPIRY_DURATION_CONFIG_KEY,
   REFRESH_TOKEN_JWT_SECRET_CONFIG_KEY,
   REFRESH_TOKEN_EXPIRY_DURATION_VALUE_CONFIG_KEY,
@@ -61,16 +60,7 @@ export class AuthService {
     return await this.generateToken(user, dto.rememberMe);
   }
 
-  async getUser(jwtPayload: any) {
-    const userId = jwtPayload[JWT_CLAIM_USER_ID];
-    const user = await this.userService.getUserById(userId);
-    return user;
-  }
-
-  async refreshToken(
-    token: string,
-    jwtPayload: any,
-  ): Promise<LoginResponseDto> {
+  async refreshToken(token: string, user: User): Promise<LoginResponseDto> {
     const now = new Date();
     const existingRefreshToken = await this.refreshTokenRepo.findOne({
       where: { tokenHash: token, isDeleted: false, expiryDate: MoreThan(now) },
@@ -82,11 +72,6 @@ export class AuthService {
     existingRefreshToken.isDeleted = true;
     existingRefreshToken.modifiedDate = new Date();
     await this.refreshTokenRepo.save(existingRefreshToken);
-
-    const user = await this.getUser(jwtPayload);
-    if (!user) {
-      throw new BadRequestException('invalid refresh token');
-    }
 
     return await this.generateToken(user, true);
   }

@@ -12,7 +12,7 @@ import { Content } from './contents/contents.entity';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
-import { RefreshToken } from './auth/refresh-token.entity';
+import { RefreshToken } from './auth/entities/refresh-token.entity';
 import {
   DB_HOST_CONFIG_KEY,
   DB_NAME_CONFIG_KEY,

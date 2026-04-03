@@ -2,21 +2,24 @@ import {
   Controller,
   Post,
   Body,
-  Request,
   UseGuards,
   Get,
   Res,
-  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from 'src/user/dto/user.dto';
 import express from 'express';
-import { RefreshTokenGuard } from './refresh-token.gurard';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { REFRESH_TOKEN_COOKIE_KEY } from 'src/app.config';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { User } from 'src/user/user.entity';
+import { Cookies } from 'src/decorators/cookies-decorator';
+import { clearRefreshTokenCookie, setRefreshTokenCookie } from './auth.cookies';
 
 @Controller('auth')
 export class AuthController {
@@ -35,11 +38,12 @@ export class AuthController {
   ) {
     const resDto = await this.authService.login(dto);
     if (dto.rememberMe) {
-      response.cookie(REFRESH_TOKEN_COOKIE_KEY, resDto.refreshToken, {
-        httpOnly: true,
-      });
+      if (!resDto.refreshToken) {
+        throw new BadRequestException('Refresh token missing');
+      }
+      setRefreshTokenCookie(response, resDto.refreshToken);
     } else {
-      response.clearCookie(REFRESH_TOKEN_COOKIE_KEY);
+      clearRefreshTokenCookie(response);
     }
     return resDto;
   }
@@ -47,23 +51,28 @@ export class AuthController {
   @Get('me')
   @Serialize(UserDto)
   @UseGuards(AuthGuard)
-  async verify(@Request() req) {
-    return this.authService.getUser(req.user);
+  verify(@CurrentUser() user: User) {
+    return user;
   }
 
   @Get('refresh')
   @UseGuards(RefreshTokenGuard)
   async refresh(
-    @Req() request,
+    @Cookies() cookies: Record<string, any>,
+    @CurrentUser() user: User,
     @Res({ passthrough: true }) response: express.Response,
   ) {
-    const refreshToken = request.cookies[REFRESH_TOKEN_COOKIE_KEY] as string;
-    const user = request.user;
+    const refreshToken = cookies[REFRESH_TOKEN_COOKIE_KEY] as string;
+
+    if (!refreshToken || !user) {
+      throw new BadRequestException();
+    }
 
     const resDto = await this.authService.refreshToken(refreshToken, user);
-    response.cookie(REFRESH_TOKEN_COOKIE_KEY, resDto.refreshToken, {
-      httpOnly: true,
-    });
+    if (!resDto.refreshToken) {
+      throw new BadRequestException('Refresh token missing');
+    }
+    setRefreshTokenCookie(response, resDto.refreshToken);
     return resDto;
   }
 }

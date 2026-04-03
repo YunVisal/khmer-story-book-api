@@ -8,9 +8,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import {
+  JWT_CLAIM_USER_ID,
   REFRESH_TOKEN_COOKIE_KEY,
   REFRESH_TOKEN_JWT_SECRET_CONFIG_KEY,
-  REQUEST_USER_KEY,
+  REQUEST_USER_ID_KEY,
 } from 'src/app.config';
 
 @Injectable()
@@ -27,7 +28,7 @@ export class RefreshTokenGuard implements CanActivate {
       throw new BadRequestException('Refresh token not found');
     }
 
-    const token = refreshTokenCookie[REFRESH_TOKEN_COOKIE_KEY];
+    const token = refreshTokenCookie[REFRESH_TOKEN_COOKIE_KEY] as string;
     const refreshTokenSecret = this.configService.get<string>(
       REFRESH_TOKEN_JWT_SECRET_CONFIG_KEY,
     );
@@ -35,7 +36,7 @@ export class RefreshTokenGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: refreshTokenSecret,
       });
-      request[REQUEST_USER_KEY] = payload;
+      request[REQUEST_USER_ID_KEY] = payload[JWT_CLAIM_USER_ID] as string;
     } catch {
       throw new BadRequestException();
     }

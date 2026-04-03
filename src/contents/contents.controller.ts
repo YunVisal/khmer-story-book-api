@@ -11,7 +11,7 @@ import { ContentsService } from './contents.service';
 import { CreateContentDto } from './dto/create-content.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { ContentDto } from './dto/content.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('contents')
 @Serialize(ContentDto)

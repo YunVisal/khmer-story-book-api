@@ -3,7 +3,7 @@ import { ChaptersService } from './chapters.service';
 import { CreateChapterDto } from './dto/create-chapter.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { ChapterDto } from './dto/chapter.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('chapters')
 @Serialize(ChapterDto)
