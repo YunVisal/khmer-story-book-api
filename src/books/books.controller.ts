@@ -12,6 +12,8 @@ import { BooksService } from './books.service';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { BookDto } from './dto/book.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from 'src/user/user.entity';
 
 @Controller('books')
 @Serialize(BookDto)
@@ -20,8 +22,8 @@ export class BooksController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() dto: CreateBookDto) {
-    return this.bookService.create(dto);
+  create(@Body() dto: CreateBookDto, @CurrentUser() user: User) {
+    return this.bookService.create(dto, user);
   }
 
   @Get()

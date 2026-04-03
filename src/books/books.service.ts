@@ -3,15 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from './books.entity';
 import { Repository } from 'typeorm';
 import { CreateBookDto } from './dto/create-book.dto';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class BooksService {
   constructor(@InjectRepository(Book) private repo: Repository<Book>) {}
 
-  create(dto: CreateBookDto) {
+  create(dto: CreateBookDto, user: User) {
     const book = this.repo.create(dto);
-    book.createdUser = 'SYSTEM';
-    book.modifiedUser = 'SYSTEM';
+    book.createdUser = user.id.toString();
+    book.modifiedUser = user.id.toString();
     return this.repo.save(book);
   }
 

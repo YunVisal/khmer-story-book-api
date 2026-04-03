@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Content } from './contents.entity';
 import { CreateContentDto } from './dto/create-content.dto';
 import { ChaptersService } from 'src/chapters/chapters.service';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class ContentsService {
@@ -12,7 +13,7 @@ export class ContentsService {
     private chapterService: ChaptersService,
   ) {}
 
-  async create(dto: CreateContentDto) {
+  async create(dto: CreateContentDto, user: User) {
     const chapter = await this.chapterService.getById(dto.chapterId);
     if (!chapter) {
       throw new BadRequestException('Chapter not found');
@@ -20,8 +21,8 @@ export class ContentsService {
 
     const content = this.repo.create(dto);
     content.chapter = chapter;
-    content.createdUser = 'SYSTEM';
-    content.modifiedUser = 'SYSTEM';
+    content.createdUser = user.id.toString();
+    content.modifiedUser = user.id.toString();
     return this.repo.save(content);
   }
 
