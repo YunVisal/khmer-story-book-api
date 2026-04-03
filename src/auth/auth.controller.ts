@@ -34,9 +34,13 @@ export class AuthController {
     @Res({ passthrough: true }) response: express.Response,
   ) {
     const resDto = await this.authService.login(dto);
-    response.cookie(REFRESH_TOKEN_COOKIE_KEY, resDto.refreshToken, {
-      httpOnly: true,
-    });
+    if (dto.rememberMe) {
+      response.cookie(REFRESH_TOKEN_COOKIE_KEY, resDto.refreshToken, {
+        httpOnly: true,
+      });
+    } else {
+      response.clearCookie(REFRESH_TOKEN_COOKIE_KEY);
+    }
     return resDto;
   }
 

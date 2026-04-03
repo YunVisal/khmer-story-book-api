@@ -19,6 +19,7 @@ import {
   REFRESH_TOKEN_JWT_SECRET_CONFIG_KEY,
   REFRESH_TOKEN_EXPIRY_DURATION_VALUE_CONFIG_KEY,
 } from 'src/app.config';
+import { LoginResponseDto } from './dto/login-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -47,9 +48,7 @@ export class AuthService {
     return this.userService.create(userDto);
   }
 
-  async login(
-    dto: LoginDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async login(dto: LoginDto): Promise<LoginResponseDto> {
     const [user] = await this.userService.getUserByEmail(dto.email);
     if (!user) {
       throw new BadRequestException('Email or Password is not correct');
@@ -59,7 +58,7 @@ export class AuthService {
       throw new BadRequestException('Email or Password is not correct');
     }
 
-    return await this.generateToken(user);
+    return await this.generateToken(user, dto.rememberMe);
   }
 
   async getUser(jwtPayload: any) {
@@ -71,7 +70,7 @@ export class AuthService {
   async refreshToken(
     token: string,
     jwtPayload: any,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<LoginResponseDto> {
     const now = new Date();
     const existingRefreshToken = await this.refreshTokenRepo.findOne({
       where: { tokenHash: token, isDeleted: false, expiryDate: MoreThan(now) },
@@ -89,14 +88,26 @@ export class AuthService {
       throw new BadRequestException('invalid refresh token');
     }
 
-    return await this.generateToken(user);
+    return await this.generateToken(user, true);
   }
 
-  private async generateToken(user: User) {
+  private async generateToken(
+    user: User,
+    rememberMe: boolean,
+  ): Promise<LoginResponseDto> {
+    const resDto: LoginResponseDto = {
+      accessToken: '',
+      refreshToken: undefined,
+    };
+
     const payload = { sub: user.id, username: user.username };
     const accessToken = await this.jwtService.signAsync(payload);
-    const refreshToken = await this.generateRefreshToken(user);
-    return { accessToken, refreshToken };
+    resDto.accessToken = accessToken;
+    if (rememberMe) {
+      const refreshToken = await this.generateRefreshToken(user);
+      resDto.refreshToken = refreshToken;
+    }
+    return resDto;
   }
 
   private async generateRefreshToken(user: User) {
