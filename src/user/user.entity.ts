@@ -1,4 +1,4 @@
-import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
+import { RefreshToken } from '../auth/entities/refresh-token.entity';
 import {
   Column,
   CreateDateColumn,

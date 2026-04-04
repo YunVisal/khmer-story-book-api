@@ -1,5 +1,5 @@
-import { Book } from 'src/books/books.entity';
-import { Content } from 'src/contents/contents.entity';
+import { Book } from '../books/books.entity';
+import { Content } from '../contents/contents.entity';
 import {
   BeforeInsert,
   Column,

@@ -18,7 +18,7 @@ import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { REFRESH_TOKEN_COOKIE_KEY } from 'src/app.config';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from 'src/user/user.entity';
-import { Cookies } from 'src/decorators/cookies-decorator';
+import { Cookies } from '../decorators/cookies-decorator';
 import { clearRefreshTokenCookie, setRefreshTokenCookie } from './auth.cookies';
 
 @Controller('auth')

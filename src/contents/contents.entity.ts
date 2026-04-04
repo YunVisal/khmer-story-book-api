@@ -1,4 +1,4 @@
-import { Chapter } from 'src/chapters/chapters.entity';
+import { Chapter } from '../chapters/chapters.entity';
 import {
   BeforeInsert,
   Column,

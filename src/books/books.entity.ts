@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Chapter } from 'src/chapters/chapters.entity';
+import { Chapter } from '../chapters/chapters.entity';
 
 @Entity()
 export class Book {
